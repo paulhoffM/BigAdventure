@@ -5,24 +5,42 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
+
+type GameState struct {
+	Inventory map[string]bool
+	Knowledge map[string]bool
+}
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
-	commands := make(map[string]func())
-	commands["look"] = cmdLook
-
+	commands := make(map[string]func(*GameState))
+	commands["try to see"] = cmdLook
+	commands["pick pockets"] = cmdPickPockets
+	commands["light lighter"] = cmdLightLighter
+	state := &GameState{
+		Inventory: make(map[string]bool),
+		Knowledge: make(map[string]bool),
+	}
 	for {
-		fmt.Print(">>>")
+		fmt.Println("___")
+		time.Sleep(300 * time.Millisecond)
+		fmt.Print(">")
+		time.Sleep(200 * time.Millisecond)
+		fmt.Print(">")
+		time.Sleep(100 * time.Millisecond)
+		fmt.Print(">")
 		scanner.Scan()
 		cliInput := cleanInput(scanner.Text())
-		commands[cliInput]()
-	}
-}
+		cmd, ok := commands[cliInput]
+		if !ok {
+			fmt.Println("You cant do that")
+		} else {
+			cmd(state)
+		}
 
-func cmdLook() {
-	text := "You look up and around. Different shades of black"
-	textPacer(text)
+	}
 }
 
 func cleanInput(text string) string {
