@@ -12,7 +12,7 @@ func intro() {
 	time.Sleep(325 * time.Millisecond)
 	fmt.Print("\n       .--:.::::.       ")
 	time.Sleep(325 * time.Millisecond)
-	fmt.Print("\n     ...::......:-.     ")
+	fmt.Print("\n     ...::......:-.    ")
 	textPacerIntro("BIG")
 	time.Sleep(250 * time.Millisecond)
 	fmt.Print("\n   .::-:.::=+**=::..    ")
