@@ -9,19 +9,24 @@ import (
 )
 
 type GameState struct {
-	Inventory map[string]bool
-	Knowledge map[string]bool
+	Inventory   map[string]bool
+	Knowledge   map[string]bool
+	ActiveVerbs map[string]bool
 }
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
-	commands, verbs := initVerbsCmds()
 	state := &GameState{
-		Inventory: make(map[string]bool),
-		Knowledge: make(map[string]bool),
+		Inventory:   make(map[string]bool),
+		Knowledge:   make(map[string]bool),
+		ActiveVerbs: make(map[string]bool),
 	}
+	commands := initVerbsCmds(state)
+	state.ActiveVerbs["try to see"] = true
+	state.ActiveVerbs["pick pockets"] = true
+	state.ActiveVerbs["use ticker"] = true
 	for {
-		cmdOptions(state, verbs)
+		cmdOptions(state)
 		printInputLine()
 		scanner.Scan()
 		cliInput := cleanInput(scanner.Text())
@@ -35,29 +40,33 @@ func startRepl() {
 	}
 }
 
-func initVerbsCmds() (map[string]func(*GameState), []string) {
+func initVerbsCmds(*GameState) map[string]func(*GameState) {
 	verbs := []string{"try to see", "pick pockets", "light lighter",
-		"look at shelf", "look at table", "look at bed", "look at door"}
+		"look at shelf", "look at table", "look at bed", "look at door", "use ticker"}
 	commands := make(map[string]func(*GameState))
 	commands[verbs[0]] = cmdLook
 	commands[verbs[1]] = cmdPickPockets
 	commands[verbs[2]] = cmdLightLighter
-	return commands, verbs
+	commands[verbs[3]] = cmdLookShelf
+	commands[verbs[4]] = cmdLookTable
+	commands[verbs[5]] = cmdLookBed
+	commands[verbs[6]] = cmdLookDoor
+	commands[verbs[7]] = cmdUseTicker
+	return commands
 }
 
-func cmdOptions(state *GameState, verbs []string) {
-	switch {
-	case state.Knowledge["lighterInPockets"] && !state.Inventory["lidLighter"]:
-		text := fmt.Sprintf("[%s] [%s]", verbs[1], verbs[2])
-		textPacer(text)
-	default:
-		text := fmt.Sprintf("[%s] [%s]", verbs[0], verbs[1])
-		textPacer(text)
+func cmdOptions(state *GameState) {
+	time.Sleep(200 * time.Millisecond)
+	for verb, _ := range state.ActiveVerbs {
+		if state.ActiveVerbs[verb] == true {
+			fmt.Printf("[%s]", verb)
+		}
+		time.Sleep(200 * time.Millisecond)
 	}
 }
 
 func printInputLine() {
-	fmt.Println("___")
+	fmt.Println("\n___")
 	time.Sleep(300 * time.Millisecond)
 	fmt.Print(">")
 	time.Sleep(200 * time.Millisecond)
